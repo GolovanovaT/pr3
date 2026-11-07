@@ -35,16 +35,16 @@ function renderHPLife(person) {
 function renderProgressbarHP(person) {
     const percent = (person.damageHP / person.defaultHP) * 100;
     person.elProgressbar.style.width = percent + '%';
-
     if (percent < 60 && percent > 20) {
-        person.elProgressbar.style.backgroundColor = 'yellow';
+        person.elProgressbar.classList.add('low');
+        person.elProgressbar.classList.remove('critical');
     } else if (percent <= 20) {
-        person.elProgressbar.style.backgroundColor = 'red';
+        person.elProgressbar.classList.add('critical');
+        person.elProgressbar.classList.remove('low');
     } else {
-        person.elProgressbar.style.backgroundColor = 'green';
+        person.elProgressbar.classList.remove('low', 'critical');
     }
 }
-
 function random(num) {
     return Math.ceil(Math.random() * num);
 }
