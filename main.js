@@ -7,6 +7,42 @@ const character = {
     damageHP: 100,
     elHP: document.getElementById('health-character'),
     elProgressbar: document.getElementById('progressbar-character'),
+
+    renderHP: function() {
+        this.renderHPLife();
+        this.renderProgressbarHP();
+    },
+    
+    renderHPLife: function() {
+        this.elHP.innerText = this.damageHP + ' / ' + this.defaultHP;
+    },
+    
+    renderProgressbarHP: function() {
+        const percent = (this.damageHP / this.defaultHP) * 100;
+        this.elProgressbar.style.width = percent + '%';
+
+        if (percent < 60 && percent > 20) {
+            this.elProgressbar.classList.add('low');
+            this.elProgressbar.classList.remove('critical');
+        } else if (percent <= 20) {
+            this.elProgressbar.classList.add('critical');
+            this.elProgressbar.classList.remove('low');
+        } else {
+            this.elProgressbar.classList.remove('low', 'critical');
+        }
+    },
+
+    changeHP: function(count) {
+        if (this.damageHP < count) {
+            this.damageHP = 0;
+            alert('Бідний ' + this.name + ' проиграл бой!');
+            $btn.disabled = true;
+            if ($btn2) $btn2.disabled = true;
+        } else {
+            this.damageHP -= count;
+        }
+        this.renderHP();
+    }
 };
 
 const enemy = {
@@ -15,64 +51,65 @@ const enemy = {
     damageHP: 100,
     elHP: document.getElementById('health-enemy'),
     elProgressbar: document.getElementById('progressbar-enemy'),
+    
+    renderHP: function() {
+        this.renderHPLife();
+        this.renderProgressbarHP();
+    },
+    
+    renderHPLife: function() {
+        this.elHP.innerText = this.damageHP + ' / ' + this.defaultHP;
+    },
+    
+    renderProgressbarHP: function() {
+        const percent = (this.damageHP / this.defaultHP) * 100;
+        this.elProgressbar.style.width = percent + '%';
+
+        if (percent < 60 && percent > 20) {
+            this.elProgressbar.classList.add('low');
+            this.elProgressbar.classList.remove('critical');
+        } else if (percent <= 20) {
+            this.elProgressbar.classList.add('critical');
+            this.elProgressbar.classList.remove('low');
+        } else {
+            this.elProgressbar.classList.remove('low', 'critical');
+        }
+    },
+
+    changeHP: function(count) {
+        if (this.damageHP < count) {
+            this.damageHP = 0;
+            alert('Бідний ' + this.name + ' проиграл бой!');
+            $btn.disabled = true;
+            if ($btn2) $btn2.disabled = true;
+        } else {
+            this.damageHP -= count;
+        }
+        this.renderHP();
+    }
 };
 
 function init() {
     console.log('Start Game!');
-    renderHP(character);
-    renderHP(enemy);
+    character.renderHP();
+    enemy.renderHP();
 }
 
-function renderHP(person) {
-    renderHPLife(person);
-    renderProgressbarHP(person);
-}
-
-function renderHPLife(person) {
-    person.elHP.innerText = person.damageHP + ' / ' + person.defaultHP;
-}
-
-function renderProgressbarHP(person) {
-    const percent = (person.damageHP / person.defaultHP) * 100;
-    person.elProgressbar.style.width = percent + '%';
-    if (percent < 60 && percent > 20) {
-        person.elProgressbar.classList.add('low');
-        person.elProgressbar.classList.remove('critical');
-    } else if (percent <= 20) {
-        person.elProgressbar.classList.add('critical');
-        person.elProgressbar.classList.remove('low');
-    } else {
-        person.elProgressbar.classList.remove('low', 'critical');
-    }
-}
 function random(num) {
     return Math.ceil(Math.random() * num);
 }
 
-function changeHP(count, person) {
-    if (person.damageHP < count) {
-        person.damageHP = 0;
-        alert('Бідний ' + person.name + ' програв бій!');
-        $btn.disabled = true;
-        if ($btn2) $btn2.disabled = true;
-    } else {
-        person.damageHP -= count;
-    }
-
-    renderHP(person);
-}
-
 $btn.addEventListener('click', function () {
     console.log('Kick!');
-    changeHP(random(20), character);
-    changeHP(random(20), enemy);
+    character.changeHP(random(20));
+    enemy.changeHP(random(20));
 });
 
 if ($btn2) {
     $btn2.addEventListener('click', function () {
         console.log('Heavy Kick!');
-        changeHP(random(35), character);
-        changeHP(random(35), enemy);
+        character.changeHP(random(35));
+        enemy.changeHP(random(35));
     });
 }
 
