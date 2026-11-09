@@ -12,8 +12,9 @@ const logs = [
     '[ПЕРСОНАЖ №1] высморкался, но неожиданно [ПЕРСОНАЖ №2] провел дробящий удар.',
     '[ПЕРСОНАЖ №1] пошатнулся, и внезапно наглый [ПЕРСОНАЖ №2] беспричинно ударил в ногу противника',
     '[ПЕРСОНАЖ №1] расстроился, как вдруг, неожиданно [ПЕРСОНАЖ №2] случайно влепил стопой в живот соперника.',
-    '[ПЕРСОНАЖ №1] пытался что-то сказать, но вдруг, неожиданно [ПЕРСОНАЖ №2] со скуки, разбил бровь сопернику.'
+    '[ПЕРСОНАЖ №1] пытался что-то сказать, but вдруг, неожиданно [ПЕРСОНАЖ №2] со скуки, разбил бровь сопернику.'
 ];
+
 
 function renderHP() {
     this.renderHPLife();
@@ -46,7 +47,7 @@ function changeHP(count, cb) {
 
     if (this.damageHP <= 0) {
         this.damageHP = 0;
-        alert('Бідний ' + this.name + ' проиграл бой!');
+        alert(`Бідний ${this.name} програв бій!`);
         $btn.disabled = true;
         if ($btn2) $btn2.disabled = true;
     }
@@ -57,6 +58,7 @@ function changeHP(count, cb) {
         cb.call(this, count);
     }
 }
+
 
 const character = {
     name: 'Pikachu',
@@ -82,18 +84,15 @@ const enemy = {
     changeHP,
 };
 
-
-function init() {
+const init = () => {
     console.log('Start Game!');
     character.renderHP();
     enemy.renderHP();
-}
+};
 
-function random(num) {
-    return Math.ceil(Math.random() * num);
-}
+const random = (num) => Math.ceil(Math.random() * num);
 
-function generateLog(firstPerson, secondPerson, damage) {
+const generateLog = (firstPerson, secondPerson, damage) => {
     const { name: firstName } = firstPerson;
     const { name: secondName } = secondPerson;
     
@@ -108,10 +107,37 @@ function generateLog(firstPerson, secondPerson, damage) {
     const $p = document.createElement('p');
     $p.innerText = fullLogText;
     $logs.insertBefore($p, $logs.children[0]);
-}
+};
 
-$btn.addEventListener('click', function () {
+const countClicks = (maxCount = 6, element) => {
+    let clicks = maxCount; 
+
+    const baseText = element.innerText;
+    element.innerText = `${baseText} (${clicks})`;
+
+    return () => {
+        if (clicks > 0) {
+            clicks--;
+            console.log(`Кількість кліків, що залишилася для кнопки "${baseText}": ${clicks}`);
+            
+            if (clicks > 0) {
+                element.innerText = `${baseText} (${clicks})`;
+            } else {
+                element.innerText = `${baseText} (0)`;
+                element.disabled = true;
+                console.log(`Кнопка "${baseText}" вичерпала ліміт натискань!`);
+            }
+        }
+    };
+};
+
+const countBtnKick = countClicks(6, $btn);
+const countBtnKick2 = countClicks(6, $btn2);
+
+$btn.addEventListener('click', () => {
     console.log('Kick!');
+    countBtnKick(); 
+    
     const damagePikachu = random(20);
     const damageCharmander = random(20);
 
@@ -125,8 +151,10 @@ $btn.addEventListener('click', function () {
 });
 
 if ($btn2) {
-    $btn2.addEventListener('click', function () {
-        console.log('Heavy Kick!');
+    $btn2.addEventListener('click', () => {
+        console.log('Heavy Punch!');
+        countBtnKick2();
+        
         const damagePikachu = random(35);
         const damageCharmander = random(35);
 
