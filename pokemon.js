@@ -2,11 +2,12 @@ class Selectors {
     constructor(name) {
         this.elHP = document.getElementById(`health-${name}`);
         this.elProgressbar = document.getElementById(`progressbar-${name}`);
+        this.elImg = document.getElementById(`img-${name}`); 
     }
 }
 
 class Pokemon extends Selectors {
-    constructor({ name, hp, type, selectors }) {
+    constructor({ name, hp, type, selectors, img, attacks = [] }) {
         super(selectors);
         this.name = name;
         this.hp = {
@@ -14,6 +15,13 @@ class Pokemon extends Selectors {
             total: hp,
         };
         this.type = type;
+        this.img = img;
+        this.attacks = attacks;
+
+        if (this.elImg) {
+            this.elImg.src = this.img;
+        }
+        
         this.renderHP();
     }
 
@@ -49,9 +57,9 @@ class Pokemon extends Selectors {
         if (this.hp.current <= 0) {
             this.hp.current = 0;
             alert(`Бідний ${this.name} програв бій!`);
-            document.getElementById('btn-kick').disabled = true;
-            const $btn2 = document.getElementById('btn-kick-2');
-            if ($btn2) $btn2.disabled = true;
+            
+            const allButtons = document.querySelectorAll('.control .button');
+            allButtons.forEach($item => $item.remove());
         }
 
         this.renderHP();

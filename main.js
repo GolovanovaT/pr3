@@ -1,23 +1,36 @@
 import Pokemon from './pokemon.js';
 import { random, logs } from './logs.js';
+import { pokemons } from './pokemons.js';
 
-const $btn = document.getElementById('btn-kick');
-const $btn2 = document.getElementById('btn-kick-2');
 const $logs = document.querySelector('#logs');
+const $control = document.querySelector('.control');
 
-const player1 = new Pokemon({
-    name: 'Pikachu',
-    hp: 100,
-    type: 'electric',
+let currentIndex = 0; 
+
+let player1 = new Pokemon({
+    ...pokemons[0], 
     selectors: 'character',
 });
 
-const player2 = new Pokemon({
-    name: 'Charmander',
-    hp: 100,
-    type: 'fire',
-    selectors: 'enemy',
-});
+let player2;
+let currentEnemyIndex = 1;
+
+const initEnemy = (index) => {
+    const enemyData = pokemons[index];
+    
+    player2 = new Pokemon({
+        ...enemyData,
+        selectors: 'enemy',
+    });
+
+    document.getElementById('name-enemy').innerText = player2.name;
+    document.getElementById('img-enemy').src = player2.img;
+};
+
+initEnemy(currentEnemyIndex);
+
+document.getElementById('name-character').innerText = player1.name;
+document.getElementById('img-character').src = player1.img;
 
 const generateLog = (firstPerson, secondPerson, damage) => {
     const { name: firstName } = firstPerson;
@@ -36,57 +49,53 @@ const generateLog = (firstPerson, secondPerson, damage) => {
     $logs.insertBefore($p, $logs.children[0]);
 };
 
-const countClicks = (maxCount = 6, element) => {
-    let clicks = maxCount;
-    const baseText = element.innerText;
-    element.innerText = `${baseText} (${clicks})`;
+const renderButtons = () => {
+    const allButtons = document.querySelectorAll('.control .button');
+    allButtons.forEach($item => $item.remove());
 
-    return () => {
-        if (clicks > 0) {
-            clicks--;
-            console.log(`Кількість кліків, що залишилася для "${baseText}": ${clicks}`);
-            
-            if (clicks > 0) {
-                element.innerText = `${baseText} (${clicks})`;
-            } else {
-                element.innerText = `${baseText} (0)`;
-                element.disabled = true;
+    player1.attacks.forEach(item => {
+        const $btn = document.createElement('button');
+        $btn.classList.add('button');
+        $btn.innerText = `${item.name} (${item.maxCount})`;
+        
+        let inner = item.maxCount;
+
+        $btn.addEventListener('click', () => {
+            inner--;
+            if (inner === 0) {
+                $btn.disabled = true;
             }
-        }
-    };
+            $btn.innerText = `${item.name} (${inner})`;
+            
+            const damagePlayer1 = random(item.maxDamage - item.minDamage) + item.minDamage;
+            const enemyAttack = player2.attacks[0];
+            const damagePlayer2 = random(enemyAttack.maxDamage - enemyAttack.minDamage) + enemyAttack.minDamage;
+
+            player1.changeHP(damagePlayer2, function(count) {
+                generateLog(this, player2, count);
+            });
+            
+            player2.changeHP(damagePlayer1, function(count) {
+                generateLog(this, player1, count);
+
+                if (player2.hp.current === 0) {
+                    alert(`Ви перемогли ${player2.name}! Наступний бій!`);
+                    
+                    currentEnemyIndex++; 
+                    
+                    if (currentEnemyIndex >= pokemons.length) {
+                        alert('Вітаю! Ви пройшли всіх покемонів!');
+                        currentEnemyIndex = 0; 
+                    }
+
+                    initEnemy(currentEnemyIndex);
+                    renderButtons();
+                }
+            });
+        });
+
+        $control.appendChild($btn);
+    });
 };
 
-const countBtnKick = countClicks(6, $btn);
-const countBtnKick2 = countClicks(6, $btn2);
-
-$btn.addEventListener('click', () => {
-    countBtnKick();
-    
-    const damagePikachu = random(20);
-    const damageCharmander = random(20);
-
-    player1.changeHP(damageCharmander, function(count) {
-        generateLog(this, player2, count);
-    });
-    
-    player2.changeHP(damagePikachu, function(count) {
-        generateLog(this, player1, count);
-    });
-});
-
-if ($btn2) {
-    $btn2.addEventListener('click', () => {
-        countBtnKick2();
-        
-        const damagePikachu = random(35);
-        const damageCharmander = random(35);
-
-        player1.changeHP(damageCharmander, function(count) {
-            generateLog(this, player2, count);
-        });
-        
-        player2.changeHP(damagePikachu, function(count) {
-            generateLog(this, player1, count);
-        });
-    });
-}
+renderButtons();
